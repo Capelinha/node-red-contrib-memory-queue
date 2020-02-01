@@ -6,7 +6,9 @@ Install
 -----------
 You can install this node directly from the "Manage Palette" menu in the Node-RED interface. There are no compilation steps.
 
-        npm install node-red-contrib-memory-queue
+```
+npm install node-red-contrib-memory-queue
+```
 
 How to use
 -----------
