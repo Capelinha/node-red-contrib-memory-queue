@@ -14,4 +14,5 @@ How to use
 
 #### Configure the queue config
 Configure the queue configuration with a unique name for the queue. To create multiple queues it is necessary to create new configurations with different names
+
 ![Example Configure](/example/config_example.png)
