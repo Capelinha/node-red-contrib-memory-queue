@@ -1,0 +1,17 @@
+{
+  "name": "node-red-contrib-memory-queue",
+  "version": "1.0.0",
+  "description": "A Node-RED node for in memory queue",
+  "author": "Capelinha",
+  "license": "MIT",
+  "keywords": [ "node-red", "queue", "memory queue" ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/capelinha/node-red-contrib-memory-queue.git"
+  },
+  "node-red": {
+    "nodes": {
+      "memoryQueue": "src/memoryQueue.js"
+    }
+  }
+}
