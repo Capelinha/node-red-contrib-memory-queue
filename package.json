@@ -17,5 +17,8 @@
     "nodes": {
       "memoryQueue": "src/memoryQueue.js"
     }
+  },
+  "dependencies": {
+    "rxjs": "^6.5.4"
   }
 }
