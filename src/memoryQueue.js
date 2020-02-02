@@ -8,15 +8,18 @@ module.exports = function(RED) {
       this.name = n.name;
       this.onPush = new Rx.Subject();
       this._data = [];
+      this._locked = false;
       this.push = function (value) {
         this._data.push(value);
 
-        if (this._data.length === 1) {
+        if (this._data.length === 1 && !this._locked) {
           this.emitNext();
         }
       }
       this.emitNext = function () {
+        this._locked = false;
         if ( this._data.length > 0) {
+          this._locked = true;
           this.onPush.next(this._data.shift());
         }
       }
