@@ -44,7 +44,7 @@
   <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Queue</label>
     <input type="text" id="node-input-queue" placeholder="Queue">
-</div>
+  </div>
 </script>
 
 <!-- queue out -->
@@ -73,12 +73,12 @@
   <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Queue</label>
     <input type="text" id="node-input-queue" placeholder="Queue">
-</div>
+  </div>
 </script>
 
 <!-- queue ack -->
 <script type="text/javascript">
-  RED.nodes.registerType('queue ack',{
+  RED.nodes.registerType('memqueue ack',{
       category: 'queue',
       color: '#8FE388',
       defaults: {
@@ -89,12 +89,12 @@
       outputs: 0,
       icon: "alert.png",
       label: function() {
-          return this.name || "queue ack";
+          return this.name || "memqueue ack";
       }
   });
 </script>
 
-<script type="text/x-red" data-template-name="queue ack">
+<script type="text/x-red" data-template-name="memqueue ack">
   <div class="form-row">
       <label for="node-input-name"><i class="icon-tag"></i> Name</label>
       <input type="text" id="node-input-name" placeholder="Name">
@@ -102,5 +102,5 @@
   <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Queue</label>
     <input type="text" id="node-input-queue" placeholder="Queue">
-</div>
+  </div>
 </script>

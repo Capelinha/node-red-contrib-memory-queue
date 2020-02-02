@@ -58,5 +58,5 @@ module.exports = function(RED) {
       node.send(msg);
     });
   }
-  RED.nodes.registerType("queue ack", QueueAckNode);
+  RED.nodes.registerType("memqueue ack", QueueAckNode);
 }
