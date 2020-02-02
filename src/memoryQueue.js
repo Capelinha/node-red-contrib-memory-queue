@@ -38,7 +38,7 @@ module.exports = function(RED) {
         shape: "dot",
         text: queue.data.length
       });
-    }, 200);
+    });
 
     this.on('close', function(done) {
       clearInterval(loop);
