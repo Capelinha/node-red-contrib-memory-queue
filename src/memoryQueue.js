@@ -33,7 +33,7 @@ module.exports = function(RED) {
     const node = this;
     
     node.on('input', function(msg) {
-      queue.push(msg.payload);
+      queue.push(msg);
       node.send(msg);
     });
   }
@@ -45,8 +45,8 @@ module.exports = function(RED) {
     const queue = RED.nodes.getNode(config.queue);
     const node = this;
 
-    const listener = queue.onPush.subscribe(function (payload) {
-      node.send({ payload });
+    const listener = queue.onPush.subscribe(function (msg) {
+      node.send(msg);
     });
 
     this.on('close', function(done) {
