@@ -18,3 +18,9 @@ How to use
 Configure the queue configuration with a unique name for the queue. To create multiple queues it is necessary to create new configurations with different names
 
 ![Example Configure](/example/config_example.png)
+
+Changelog
+-----------
+
+#### 2.0.0
+* The entire msg object is added to the queue, not just the payload
