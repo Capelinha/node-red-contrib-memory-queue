@@ -6,14 +6,22 @@ module.exports = function(RED) {
   function MemoryQueueConfig(n) {
       RED.nodes.createNode(this, n);
       this.name = n.name;
+      this.size = n.size;
+      this.discardOnFull = n.discard;
       this.onPush = new Rx.Subject();
       this._data = [];
       this._locked = false;
       this.push = function (value) {
-        this._data.push(value);
+        if (this.size > 0 && this._data.length == this.size && this.discardOnFull) {
+          this._data.shift()
+        }
 
-        if (this._data.length === 1 && !this._locked) {
-          this.emitNext();
+        if (this.size > 0 && this._data.length < size) {
+          this._data.push(value);
+
+          if (this._data.length === 1 && !this._locked) {
+            this.emitNext();
+          }
         }
       }
       this.emitNext = function () {

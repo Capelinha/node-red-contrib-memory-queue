@@ -7,16 +7,31 @@
       },
       label: function() {
           return this.name;
+      },
+      oneditprepare: function() {
+        $("#node-config-input-size").typedInput({
+          type:'num'
+        })
       }
   });
+
+  
 </script>
 
 <script type="text/html" data-template-name="memory-queue">
   <div class="form-row">
-      <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
-      <input type="text" id="node-config-input-name">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name">
   </div>
-</script>
+  <div class="form-row">
+    <label for="node-config-input-size"><i class="fa fa-grid"></i> Maximum Size (0 or empty for unlimited size)</label>
+    <input type="text" id="node-config-input-size">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-discard"><i class="fa fa-arrow-right"></i> Discard oldest when queue is full</label>
+    <input type="checkbox" id="node-config-input-discard">
+</div>
+  </script>
 
 <!-- queue in -->
 <script type="text/javascript">
