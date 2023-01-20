@@ -29,10 +29,10 @@ module.exports = function(RED) {
       this._locked = false;
       this.push = function (value) {
         if (this.size > 0 && this._data.length == this.size && this.discardOnFull) {
-          this._data.shift()
+          this._data.shift();
         }
 
-        if (this.size > 0 && this._data.length < size) {
+        if (!(this.size > 0) || this._data.length < this.size) {
           this._data.push(value);
 
           if (this._data.length === 1 && !this._locked) {
@@ -40,11 +40,12 @@ module.exports = function(RED) {
           }
         }
       }
-      this.emitNext = function () {
+      this.emitNext = function (acked = false) {
+        if (acked) queue._data.shift();
         this._locked = false;
-        if ( this._data.length > 0) {
+        if (this._data.length > 0) {
           this._locked = true;
-          this.onPush.publish(this._data.shift());
+          this.onPush.publish(this._data[0]);
         }
       }
   }
@@ -88,7 +89,7 @@ module.exports = function(RED) {
     const node = this;
 
     node.on('input', function(msg) {
-      queue.emitNext();
+      queue.emitNext(true);
     });
   }
   RED.nodes.registerType("memqueue ack", QueueAckNode);

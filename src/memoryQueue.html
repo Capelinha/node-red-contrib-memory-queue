@@ -3,7 +3,9 @@
   RED.nodes.registerType('memory-queue',{
       category: 'config',
       defaults: {
-          name: { value: '', required: true },
+        name: { value: '', required: true },
+        size: { value: null, required: false },
+        discard: { value: false, required: false },
       },
       label: function() {
           return this.name;
@@ -24,12 +26,12 @@
     <input type="text" id="node-config-input-name">
   </div>
   <div class="form-row">
-    <label for="node-config-input-size"><i class="fa fa-grid"></i> Maximum Size (0 or empty for unlimited size)</label>
+    <label for="node-config-input-size"><i class="fa fa-database"></i> Size</label>
     <input type="text" id="node-config-input-size">
   </div>
   <div class="form-row">
-    <label for="node-config-input-discard"><i class="fa fa-arrow-right"></i> Discard oldest when queue is full</label>
-    <input type="checkbox" id="node-config-input-discard">
+    <label for="node-config-input-discard"><i class="fa fa-rotate-left"></i> Discard Oldest</label>
+    <input type="checkbox" id="node-config-input-discard" style="display:inline-block; width:auto; vertical-align:top;">
 </div>
   </script>
 
