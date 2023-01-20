@@ -1,4 +1,20 @@
-const Rx = require('rxjs');
+class PubSub {
+  constructor() {
+    this.subscribers = []
+  }
+
+  subscribe(subscriber) {
+    this.subscribers.push(subscriber)
+  }
+
+  unsubscribe(subscriber) {
+    this.subscribers = this.subscribers.filter(sub => sub !== subscriber)
+  }
+
+  publish(msg) {
+    this.subscribers.forEach(subscriber => subscriber(msg))
+  }
+}
 
 module.exports = function(RED) {
 
@@ -8,7 +24,7 @@ module.exports = function(RED) {
       this.name = n.name;
       this.size = n.size;
       this.discardOnFull = n.discard;
-      this.onPush = new Rx.Subject();
+      this.onPush = new PubSub();
       this._data = [];
       this._locked = false;
       this.push = function (value) {
@@ -28,7 +44,7 @@ module.exports = function(RED) {
         this._locked = false;
         if ( this._data.length > 0) {
           this._locked = true;
-          this.onPush.next(this._data.shift());
+          this.onPush.publish(this._data.shift());
         }
       }
   }
@@ -53,12 +69,13 @@ module.exports = function(RED) {
     const queue = RED.nodes.getNode(config.queue);
     const node = this;
 
-    const listener = queue.onPush.subscribe(function (msg) {
+    const subscriber = function (msg) {
       node.send(msg);
-    });
+    }
+    queue.onPush.subscribe(subscriber);
 
     this.on('close', function(done) {
-      listener.unsubscribe();
+      queue.onPush.unsubscribe(subscriber);
       done();
     });
   }
