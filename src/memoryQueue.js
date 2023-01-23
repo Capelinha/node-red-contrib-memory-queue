@@ -25,6 +25,7 @@ module.exports = function(RED) {
       this.size = n.size;
       this.discardOnFull = n.discard;
       this.onPush = new PubSub();
+      this.onStatusChange = new PubSub();
       this._data = [];
       this._locked = false;
       this.push = function (value) {
@@ -35,10 +36,15 @@ module.exports = function(RED) {
         if (!(this.size > 0) || this._data.length < this.size) {
           this._data.push(value);
 
+          this.onStatusChange.publish(this._data.length);
+
           if (this._data.length === 1 && !this._locked) {
             this.emitNext();
           }
+          return true;
         }
+
+        return false;
       }
       this.emitNext = function (acked = false) {
         if (acked) this._data.shift();
@@ -47,6 +53,8 @@ module.exports = function(RED) {
           this._locked = true;
           this.onPush.publish(this._data[0]);
         }
+        
+        this.onStatusChange.publish(this._data.length);
       }
   }
   RED.nodes.registerType("memory-queue", MemoryQueueConfig);
@@ -58,7 +66,13 @@ module.exports = function(RED) {
     const node = this;
     
     node.on('input', function(msg) {
-        queue.push(JSON.parse(JSON.stringify(msg)));
+      const success = queue.push(JSON.parse(JSON.stringify(msg)));
+      if (success) {
+        node.status({fill: "green", shape:"dot", text:"msg enqueued"});
+      } else {
+        node.status({fill: "red", shape:"ring", text:"queue full"});
+      }
+
       node.send(msg);
     });
   }
@@ -70,13 +84,21 @@ module.exports = function(RED) {
     const queue = RED.nodes.getNode(config.queue);
     const node = this;
 
-    const subscriber = function (msg) {
+    const emitMessage = function (msg) {
       node.send(JSON.parse(JSON.stringify(msg)));
     }
-    queue.onPush.subscribe(subscriber);
+
+    const updateStatus = function (length) {
+      node.status({fill: length > 0 ? "yellow" : "green", shape:"dot", text:`${length} in queue`});
+    }
+    updateStatus(0);
+
+    queue.onPush.subscribe(emitMessage);
+    queue.onStatusChange.subscribe(updateStatus);
 
     this.on('close', function(done) {
-      queue.onPush.unsubscribe(subscriber);
+      queue.onPush.unsubscribe(emitMessage);
+      queue.onStatusChange.unsubscribe(updateStatus);
       done();
     });
   }
