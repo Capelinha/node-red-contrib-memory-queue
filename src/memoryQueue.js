@@ -41,7 +41,7 @@ module.exports = function(RED) {
         }
       }
       this.emitNext = function (acked = false) {
-        if (acked) queue._data.shift();
+        if (acked) this._data.shift();
         this._locked = false;
         if (this._data.length > 0) {
           this._locked = true;
@@ -58,7 +58,7 @@ module.exports = function(RED) {
     const node = this;
     
     node.on('input', function(msg) {
-      queue.push(msg);
+        queue.push(JSON.parse(JSON.stringify(msg)));
       node.send(msg);
     });
   }
@@ -71,7 +71,7 @@ module.exports = function(RED) {
     const node = this;
 
     const subscriber = function (msg) {
-      node.send(msg);
+      node.send(JSON.parse(JSON.stringify(msg)));
     }
     queue.onPush.subscribe(subscriber);
 
