@@ -121,3 +121,32 @@
     <input type="text" id="node-input-queue" placeholder="Queue">
   </div>
 </script>
+
+<!-- queue resend -->
+<script type="text/javascript">
+  RED.nodes.registerType('memqueue resend',{
+      category: 'queue',
+      color: '#F3B567',
+      defaults: {
+          name: {value: ''},
+          queue: {value: '', type: 'memory-queue', required: true},
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: "font-awesome/fa-repeat",
+      label: function() {
+          return this.name || "queue resend";
+      }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="memqueue resend">
+  <div class="form-row">
+      <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Queue</label>
+    <input type="text" id="node-input-queue" placeholder="Queue">
+  </div>
+</script>

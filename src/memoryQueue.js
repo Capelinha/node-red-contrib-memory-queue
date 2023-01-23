@@ -32,7 +32,7 @@ module.exports = function(RED) {
         if (this.size > 0 && this._data.length == this.size && this.discardOnFull) {
           this._data.shift();
         }
-
+        
         if (!(this.size > 0) || this._data.length < this.size) {
           this._data.push(value);
 
@@ -115,4 +115,16 @@ module.exports = function(RED) {
     });
   }
   RED.nodes.registerType("memqueue ack", QueueAckNode);
+
+  // queue resend
+  function QueueResendNode(config) {
+    RED.nodes.createNode(this, config);
+    const queue = RED.nodes.getNode(config.queue);
+    const node = this;
+
+    node.on('input', function(msg) {
+      queue.emitNext(false);
+    });
+  }
+  RED.nodes.registerType("memqueue resend", QueueResendNode);
 }
