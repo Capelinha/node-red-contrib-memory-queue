@@ -3,20 +3,37 @@
   RED.nodes.registerType('memory-queue',{
       category: 'config',
       defaults: {
-          name: { value: '', required: true },
+        name: { value: '', required: true },
+        size: { value: null, required: false },
+        discard: { value: false, required: false },
       },
       label: function() {
           return this.name;
+      },
+      oneditprepare: function() {
+        $("#node-config-input-size").typedInput({
+          type:'num'
+        })
       }
   });
+
+  
 </script>
 
 <script type="text/html" data-template-name="memory-queue">
   <div class="form-row">
-      <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
-      <input type="text" id="node-config-input-name">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name">
   </div>
-</script>
+  <div class="form-row">
+    <label for="node-config-input-size"><i class="fa fa-database"></i> Size</label>
+    <input type="text" id="node-config-input-size">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-discard"><i class="fa fa-rotate-left"></i> Discard Oldest</label>
+    <input type="checkbox" id="node-config-input-discard" style="display:inline-block; width:auto; vertical-align:top;">
+</div>
+  </script>
 
 <!-- queue in -->
 <script type="text/javascript">
@@ -95,6 +112,35 @@
 </script>
 
 <script type="text/x-red" data-template-name="memqueue ack">
+  <div class="form-row">
+      <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Queue</label>
+    <input type="text" id="node-input-queue" placeholder="Queue">
+  </div>
+</script>
+
+<!-- queue resend -->
+<script type="text/javascript">
+  RED.nodes.registerType('memqueue resend',{
+      category: 'queue',
+      color: '#F3B567',
+      defaults: {
+          name: {value: ''},
+          queue: {value: '', type: 'memory-queue', required: true},
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: "font-awesome/fa-repeat",
+      label: function() {
+          return this.name || "queue resend";
+      }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="memqueue resend">
   <div class="form-row">
       <label for="node-input-name"><i class="icon-tag"></i> Name</label>
       <input type="text" id="node-input-name" placeholder="Name">

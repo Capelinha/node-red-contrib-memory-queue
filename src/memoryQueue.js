@@ -1,4 +1,20 @@
-const Rx = require('rxjs');
+class PubSub {
+  constructor() {
+    this.subscribers = []
+  }
+
+  subscribe(subscriber) {
+    this.subscribers.push(subscriber)
+  }
+
+  unsubscribe(subscriber) {
+    this.subscribers = this.subscribers.filter(sub => sub !== subscriber)
+  }
+
+  publish(msg) {
+    this.subscribers.forEach(subscriber => subscriber(msg))
+  }
+}
 
 module.exports = function(RED) {
 
@@ -6,22 +22,39 @@ module.exports = function(RED) {
   function MemoryQueueConfig(n) {
       RED.nodes.createNode(this, n);
       this.name = n.name;
-      this.onPush = new Rx.Subject();
+      this.size = n.size;
+      this.discardOnFull = n.discard;
+      this.onPush = new PubSub();
+      this.onStatusChange = new PubSub();
       this._data = [];
       this._locked = false;
       this.push = function (value) {
-        this._data.push(value);
+        if (this.size > 0 && this._data.length == this.size && this.discardOnFull) {
+          this._data.shift();
+        }
+        
+        if (!(this.size > 0) || this._data.length < this.size) {
+          this._data.push(value);
 
-        if (this._data.length === 1 && !this._locked) {
-          this.emitNext();
+          this.onStatusChange.publish(this._data.length);
+
+          if (this._data.length === 1 && !this._locked) {
+            this.emitNext();
+          }
+          return true;
         }
+
+        return false;
       }
-      this.emitNext = function () {
+      this.emitNext = function (acked = false) {
+        if (acked) this._data.shift();
         this._locked = false;
-        if ( this._data.length > 0) {
+        if (this._data.length > 0) {
           this._locked = true;
-          this.onPush.next(this._data.shift());
+          this.onPush.publish(this._data[0]);
         }
+        
+        this.onStatusChange.publish(this._data.length);
       }
   }
   RED.nodes.registerType("memory-queue", MemoryQueueConfig);
@@ -33,7 +66,13 @@ module.exports = function(RED) {
     const node = this;
     
     node.on('input', function(msg) {
-      queue.push(msg);
+      const success = queue.push(JSON.parse(JSON.stringify(msg)));
+      if (success) {
+        node.status({fill: "green", shape:"dot", text:"msg enqueued"});
+      } else {
+        node.status({fill: "red", shape:"ring", text:"queue full"});
+      }
+
       node.send(msg);
     });
   }
@@ -45,12 +84,21 @@ module.exports = function(RED) {
     const queue = RED.nodes.getNode(config.queue);
     const node = this;
 
-    const listener = queue.onPush.subscribe(function (msg) {
-      node.send(msg);
-    });
+    const emitMessage = function (msg) {
+      node.send(JSON.parse(JSON.stringify(msg)));
+    }
+
+    const updateStatus = function (length) {
+      node.status({fill: length > 0 ? "yellow" : "green", shape:"dot", text:`${length} in queue`});
+    }
+    updateStatus(0);
+
+    queue.onPush.subscribe(emitMessage);
+    queue.onStatusChange.subscribe(updateStatus);
 
     this.on('close', function(done) {
-      listener.unsubscribe();
+      queue.onPush.unsubscribe(emitMessage);
+      queue.onStatusChange.unsubscribe(updateStatus);
       done();
     });
   }
@@ -63,8 +111,20 @@ module.exports = function(RED) {
     const node = this;
 
     node.on('input', function(msg) {
-      queue.emitNext();
+      queue.emitNext(true);
     });
   }
   RED.nodes.registerType("memqueue ack", QueueAckNode);
+
+  // queue resend
+  function QueueResendNode(config) {
+    RED.nodes.createNode(this, config);
+    const queue = RED.nodes.getNode(config.queue);
+    const node = this;
+
+    node.on('input', function(msg) {
+      queue.emitNext(false);
+    });
+  }
+  RED.nodes.registerType("memqueue resend", QueueResendNode);
 }
